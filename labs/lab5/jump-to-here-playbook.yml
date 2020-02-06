@@ -1,0 +1,97 @@
+--- 
+- hosts: localhost
+  become_method: sudo
+  tasks:
+  - name: launch openshift
+    command: /bin/bash /home/ec2-user/start-oc.sh
+    async: 600
+    poll: 0
+    register: start_oc
+
+  - name: build registry
+    command: podman build -t registry /home/ec2-user/summit-2018-container-lab/labs/lab3/registry
+    become: true
+    async: 300
+    poll: 0
+    register: registry
+
+  - name: build mariadb
+    command: > 
+      podman build 
+      -t mariadb 
+      -f /home/ec2-user/summit-2018-container-lab/labs/lab3/mariadb/Dockerfile.reference
+      /home/ec2-user/summit-2018-container-lab/labs/lab3/mariadb/
+    become: true
+    async: 300
+    poll: 0
+    register: mariadb
+
+  - name: build wordpress
+    command: >
+      podman build 
+      -t wordpress 
+      -f /home/ec2-user/summit-2018-container-lab/labs/lab3/wordpress/Dockerfile.reference
+      /home/ec2-user/summit-2018-container-lab/labs/lab3/wordpress/
+    become: true
+    async: 300
+    poll: 0
+    register: wordpress
+
+  - name: cleanup registry container
+    command: podman rm -f registry
+    become: true
+    ignore_errors: yes
+
+  - name: Check on registry build
+    async_status: jid={{ registry.ansible_job_id }}
+    register: registry_result
+    until: registry_result.finished
+    retries: 300
+    become: true
+
+  - name: Check on mariadb build
+    async_status: jid={{ mariadb.ansible_job_id }}
+    register: mariadb_result
+    until: mariadb_result.finished
+    retries: 300
+    become: true
+
+  - name: Check on wordpress build
+    async_status: jid={{ wordpress.ansible_job_id }}
+    register: wordpress_result
+    until: wordpress_result.finished
+    retries: 300
+    become: true
+
+  - name: cleanup images
+    shell: podman images | grep -E '<none>' | awk '{print $3}' | xargs podman rmi -f -
+    become: true
+    ignore_errors: yes
+
+  - name: launch registry
+    command: podman run --name registry -p 5000 -d registry
+    become: true
+
+  - name: load mariadb into registry
+    command: podman push --tls-verify=false mariadb localhost:5000/mariadb
+    become: true
+
+  - name: load wordpress into registry
+    command: podman push --tls-verify=false wordpress localhost:5000/wordpress
+    become: true
+
+  - name: Check on openshift launch
+    async_status: jid={{ start_oc.ansible_job_id }}
+    register: cache_result
+    until: cache_result.finished
+    retries: 300
+    ignore_errors: yes
+
+  - name: openshift login
+    command: oc login -u developer
+    become: false
+
+  - name: create empty devel project
+    command: oc new-project devel
+    become: false
+    ignore_errors: yes
