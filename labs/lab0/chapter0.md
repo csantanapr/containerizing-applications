@@ -93,7 +93,7 @@ We can also check out the OpenShift console. Open a browser and navigate to `htt
 Clone the lab repository from github:
 ```bash
 $ cd ~/
-$ git clone https://github.com/dustymabe/summit-2018-container-lab
+$ git clone https://gitlab.com/2020-summit-labs/containerizing-applications
 ```
 
 ## OpenShift Container Platform

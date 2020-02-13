@@ -9,7 +9,7 @@
     register: start_oc
 
   - name: build registry
-    command: podman build -t registry /home/ec2-user/summit-2018-container-lab/labs/lab3/registry
+    command: podman build -t registry /home/ec2-user/containerizing-applications/labs/lab3/registry
     become: true
     async: 300
     poll: 0
@@ -19,8 +19,8 @@
     command: > 
       podman build 
       -t mariadb 
-      -f /home/ec2-user/summit-2018-container-lab/labs/lab3/mariadb/Dockerfile.reference
-      /home/ec2-user/summit-2018-container-lab/labs/lab3/mariadb/
+      -f /home/ec2-user/containerizing-applications/labs/lab3/mariadb/Dockerfile.reference
+      /home/ec2-user/containerizing-applications/labs/lab3/mariadb/
     become: true
     async: 300
     poll: 0
@@ -30,8 +30,8 @@
     command: >
       podman build 
       -t wordpress 
-      -f /home/ec2-user/summit-2018-container-lab/labs/lab3/wordpress/Dockerfile.reference
-      /home/ec2-user/summit-2018-container-lab/labs/lab3/wordpress/
+      -f /home/ec2-user/containerizing-applications/labs/lab3/wordpress/Dockerfile.reference
+      /home/ec2-user/containerizing-applications/labs/lab3/wordpress/
     become: true
     async: 300
     poll: 0

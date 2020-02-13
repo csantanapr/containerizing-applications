@@ -84,9 +84,9 @@ $ buildah copy --help
 
 Here we are just going to explore a simple Dockerfile. The purpose for this is to have a look at some of the basic commands that are used to construct a podman or docker image. For this lab, we will explore a basic Apache httpd Dockerfile and then confirm functionality.
 
-Change to `~/summit-2018-container-lab/labs/lab1` and `cat` out the Dockerfile
+Change to `~/containerizing-applications/labs/lab1` and `cat` out the Dockerfile
 ```bash
-$ cd ~/summit-2018-container-lab/labs/lab1
+$ cd ~/containerizing-applications/labs/lab1
 $ cat Dockerfile
 ```
 ```dockerfile

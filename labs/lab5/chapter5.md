@@ -24,7 +24,7 @@ Now using project "production" on server "https://10.xx.xx.xxx:8443".
 
 This time, let's simplify things by deploying an application template.  We've already included a template with lab5 which leverages our wordpress & mariadb images.
 ```bash
-$ cd ~/summit-2018-container-lab/labs/lab5/
+$ cd ~/containerizing-applications/labs/lab5/
 $ grep localhost:5000 wordpress-template.yaml
 ```
 
