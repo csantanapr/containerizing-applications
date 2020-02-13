@@ -14,7 +14,7 @@ $ oc delete project devel production
 
 The `./run_latest_build.sh` deploys the Ansible Broker to your existing OpenShift environment.
 ```bash
-$ cd ~/summit-2018-container-lab/labs/lab6/scripts/
+$ cd ~/containerizing-applications/labs/lab6/scripts/
 $ ./run_latest_build.sh
 ```
 

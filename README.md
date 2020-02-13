@@ -1,4 +1,4 @@
-# Summit Lab 2018: Containerizing Applications
+# Summit Lab 2020: Containerizing Applications
 
 1. **[LAB 0](labs/lab0/chapter0.md)** Introduction / Setup
 1. **[LAB 1](labs/lab1/chapter1.md)** Introducing podman

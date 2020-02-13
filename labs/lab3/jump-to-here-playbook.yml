@@ -9,7 +9,7 @@
     register: start_oc
 
   - name: build bigimg
-    command: podman build -t bigimg /home/ec2-user/summit-2018-container-lab/labs/lab2/bigapp
+    command: podman build -t bigimg /home/ec2-user/containerizing-applications/labs/lab2/bigapp
     become: true
 
   - name: cleanup bigapp container

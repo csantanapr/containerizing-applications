@@ -72,8 +72,8 @@ Now we will develop the two images. Using the information above and the Dockerfi
 ```bash
 $ mkdir ~/workspace
 $ cd ~/workspace
-$ cp -R ~/summit-2018-container-lab/labs/lab3/mariadb .
-$ cp -R ~/summit-2018-container-lab/labs/lab3/wordpress .
+$ cp -R ~/containerizing-applications/labs/lab3/mariadb .
+$ cp -R ~/containerizing-applications/labs/lab3/wordpress .
 $ ls -lR mariadb
 $ ls -lR wordpress
 ```
@@ -260,7 +260,7 @@ Let's deploy a simple registry to store our images.
 
 Inspect the Dockerfile that has been prepared.
 ```bash
-$ cd ~/summit-2018-container-lab/labs/lab3/
+$ cd ~/containerizing-applications/labs/lab3/
 $ cat registry/Dockerfile
 ```
 
