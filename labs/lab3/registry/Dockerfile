@@ -1,9 +1,8 @@
-FROM registry.access.redhat.com/rhel7
-MAINTAINER Student <student@example.com>
+FROM registry.access.redhat.com/ubi8
+LABEL maintainer="student@example.com"
 
-RUN yum -y install docker-registry --disablerepo "*" \
-      --enablerepo rhel-7-server-extras-rpms && \
-    yum clean all
+RUN yum -y install docker-registry && \
+      yum clean all
 
 EXPOSE 5000
 

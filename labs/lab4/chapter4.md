@@ -20,7 +20,6 @@ Take a look at the site in your web browser on your machine using
 ```bash
 $ sudo podman ps
 $ sudo podman port wordpress
-8080/udp -> 0.0.0.0:8080
 8080/tcp -> 0.0.0.0:8080
 ```
 

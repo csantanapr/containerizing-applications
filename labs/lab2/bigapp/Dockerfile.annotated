@@ -1,8 +1,8 @@
-FROM registry.access.redhat.com/rhel7
+FROM registry.access.redhat.com/ubi8
 
 >>> No tags on image specification - updates could break things
 
-MAINTAINER Student <student@example.com>
+LABEL maintainer="student@example.com"
 
 # ADD set up scripts
 ADD  scripts /scripts
@@ -10,13 +10,6 @@ ADD  scripts /scripts
 >>> If a local script changes then we have to rebuild from scratch
 
 RUN chmod 755 /scripts/*
-
-# Disable all but the necessary repo(s)
-RUN yum-config-manager --disable \* &> /dev/null
-RUN yum-config-manager --enable rhel-7-server-rpms
-
->>> The yum-config-manager method to managing repos can be time consuming during a "sudo podman build"...
->>> whereas, enabling the necessary repo(s) during a "yum install" is much faster.
 
 # Common Deps
 RUN yum -y install openssl
@@ -28,7 +21,7 @@ RUN yum -y install psmisc
 # Deps for wordpress
 RUN yum -y install httpd
 RUN yum -y install php
-RUN yum -y install php-mysql
+RUN yum -y install php-mysqlnd
 RUN yum -y install php-gd
 RUN yum -y install tar
 
