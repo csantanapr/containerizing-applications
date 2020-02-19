@@ -13,7 +13,7 @@ Expected completion: 20-30 minutes
 In the previous lab we created an "all-in-one" application. Let's enter the container and explore.
 
 ```bash
-$ sudo podman exec -t bigapp /bin/bash
+$ sudo podman exec -it bigapp /bin/bash
 ```
 
 ### Services
@@ -84,14 +84,14 @@ $ ls -lR wordpress
 
         $ vi mariadb/Dockerfile
 
-1. Add a `FROM` line that uses a specific image tag. Also add `MAINTAINER` information.
+1. Add a `FROM` line that uses a specific image tag. Also add `maintainer` information.
 
-        FROM registry.access.redhat.com/rhel7:7.5-231
-        MAINTAINER Student <student@example.com>
+        FROM registry.access.redhat.com/ubi8:8.1-397
+        LABEL maintainer="student@example.com"
 
 1. Add the required packages. We'll include `yum clean all` at the end to clear the yum cache.
 
-        RUN yum -y install --disablerepo "*" --enablerepo rhel-7-server-rpms \
+        RUN yum -y install \
               mariadb-server openssl psmisc net-tools hostname && \
             yum clean all
 
@@ -129,15 +129,15 @@ Now we'll create the Wordpress Dockerfile. (As before, there is a reference file
 
         $ vi wordpress/Dockerfile
 
-1. Add a `FROM` line that uses a specific image tag. Also add `MAINTAINER` information.
+1. Add a `FROM` line that uses a specific image tag. Also add `maintainer` information.
 
-        FROM registry.access.redhat.com/rhel7:7.5-231
-        MAINTAINER Student <student@example.com>
+        FROM registry.access.redhat.com/ubi8:8.1-397
+        LABEL maintainer="student@example.com"
 
 1. Add the required packages. We'll include `yum clean all` at the end to clear the yum cache.
 
-        RUN yum -y install --disablerepo "*" --enablerepo rhel-7-server-rpms \
-              httpd php php-mysql php-gd openssl psmisc && \
+        RUN yum -y install \
+              httpd php php-mysqlnd php-gd openssl psmisc && \
             yum clean all
 
 1. Add the dependent scripts and make them executable.

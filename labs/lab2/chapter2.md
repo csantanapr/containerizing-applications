@@ -81,7 +81,7 @@ Press `CTRL+d` or type `exit` to leave the container shell.
 
 First detect the host port number that is is mapped to the container's port 80:
 ```bash
-$ sudo podman port bigapp 80
+$ sudo podman port bigapp
 ```
 
 Now connect to the port via curl:
@@ -95,11 +95,11 @@ So we have built a monolithic application using a somewhat complicated Dockerfil
 
 To illustrate some problem points in our Dockerfile it has been replicated below with some commentary added:
 ```dockerfile
-FROM registry.access.redhat.com/rhel7
+FROM registry.access.redhat.com/ubi8
 
 >>> No tags on image specification - updates could break things
 
-MAINTAINER Student <student@example.com>
+LABEL maintainer="student@example.com"
 
 # ADD set up scripts
 ADD  scripts /scripts
@@ -109,30 +109,30 @@ ADD  scripts /scripts
 RUN chmod 755 /scripts/*
 
 # Common Deps
-RUN yum -y install openssl --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install psmisc --disablerepo "*" --enablerepo rhel-7-server-rpms
+RUN yum -y install openssl
+RUN yum -y install psmisc
 
 >>> Running a yum clean all in the same statement would clear the yum
 >>> cache in our intermediate cached image layer
 
 # Deps for wordpress
-RUN yum -y install httpd --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install php --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install php-mysql --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install php-gd --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install tar --disablerepo "*" --enablerepo rhel-7-server-rpms
+RUN yum -y install httpd
+RUN yum -y install php
+RUN yum -y install php-mysqlnd
+RUN yum -y install php-gd
+RUN yum -y install tar
 
 # Deps for mariadb
-RUN yum -y install mariadb-server --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install net-tools --disablerepo "*" --enablerepo rhel-7-server-rpms
-RUN yum -y install hostname --disablerepo "*" --enablerepo rhel-7-server-rpms
+RUN yum -y install mariadb-server
+RUN yum -y install net-tools
+RUN yum -y install hostname
 
 >>> Can group all of the above into one yum statement to minimize 
 >>> intermediate layers. However, during development, it can be nice 
 >>> to keep them separated so that your "build/run/debug" cycle can 
 >>> take advantage of layers and caching. Just be sure to clean it up
 >>> before you publish. You can check out the history of the image you
->>> have created by running *podman history bigimg*.
+>>> have created by running *sudo podman history bigimg*.
 
 # Add in wordpress sources 
 COPY latest.tar.gz /latest.tar.gz

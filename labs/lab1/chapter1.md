@@ -90,10 +90,10 @@ $ cd ~/containerizing-applications/labs/lab1
 $ cat Dockerfile
 ```
 ```dockerfile
-FROM registry.access.redhat.com/rhel7
-MAINTAINER Student <student@example.com>
+FROM registry.access.redhat.com/ubi8
+LABEL maintainer="student@example.com"
 
-RUN yum -y install httpd --disablerepo "*" --enablerepo rhel-7-server-rpms
+RUN yum -y install httpd
 RUN echo "Apache" >> /var/www/html/index.html
 RUN echo 'PS1="[apache]#  "' > /etc/profile.d/ps1.sh
 
@@ -106,7 +106,7 @@ RUN chmod -v +x /run-apache.sh
 CMD [ "/run-apache.sh" ]
 ```
 
-Here you can see in the `FROM` command that we are pulling a RHEL 7 base image that we are going to build on. Containers that are being built inherit the subscriptions of the host they are running on, so you only need to register the host system.
+Here you can see in the `FROM` command that we are pulling a UBI8 base image that we are going to build on. Containers that are being built inherit the subscriptions of the host they are running on, so you only need to register the host system.
 
 After gaining access to a repository we update the container and install `httpd`. Finally, we modify the index.html file, `EXPOSE` port 80,which allows traffic into the container, and then set the container to start with a `CMD` of `run-apache.sh`.
 
@@ -118,7 +118,7 @@ $ sudo podman build -t redhat/apache .
 $ sudo podman images
 ```
 
-Podman is not actually building this image, technically it is wrapping buildah to do so. If you wanted to use buildah directly you could do the same thing as `sudo podman build -t redhat/apache .` by using `sudo buildah build-using-dockerfile -t redhat/apache .`. You can even see `buildah images` will report the same thing as `podman images`. 
+Podman is not actually building this image, technically it is wrapping buildah to do so. If you wanted to use buildah directly you could do the same thing as `sudo podman build -t redhat/apache .` by using `sudo buildah build-using-dockerfile -t redhat/apache .`. You can even see `sudo buildah images` will report the same thing as `sudo podman images`. 
 
 ```bash
 $ sudo buildah images
@@ -161,7 +161,7 @@ We can apply the same filter to any value in the json output. Try a few differen
 
 Now lets look inside the container and see what that environment looks like. Execute commands in the namespace with `podman exec <container-name OR container-id> <cmd>`
 ```bash
-$ sudo podman exec -t apache bash
+$ sudo podman exec -it apache bash
 ```
 
 Now run some commands and explore the environment. Remember, we are in a slimmed down container at this point - this is by design. You may find surprising restrictions and that not every application you expect is available.
@@ -175,7 +175,7 @@ Remember, you can always install what you need while you are debugging something
 ```bash
 [apache]# less /run-apache.sh
 bash: less: command not found
-[apache]# yum install -y less --disablerepo "*" --enablerepo rhel-7-server-rpms
+[apache]# yum install -y less
 [apache]# less /run-apache.sh
 ...
 ```
