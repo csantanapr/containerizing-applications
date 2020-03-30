@@ -1,0 +1,8 @@
+--- 
+
+- name: Install basics
+  package: name={{item}} state=present
+  with_items:
+    - rsync
+
+

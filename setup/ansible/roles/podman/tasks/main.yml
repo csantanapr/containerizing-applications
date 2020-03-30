@@ -1,0 +1,12 @@
+--- 
+- name: enable appropriate repos
+  debug:
+    msg: "defaults work fine so far"
+
+- name: Install podman
+  package: name={{item}} state=present
+  with_items:
+    - podman
+    - skopeo
+    - buildah
+
