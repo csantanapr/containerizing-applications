@@ -36,7 +36,7 @@ $ cat Dockerfile
 
 Build the podman image for this by executing the following command. This can take a while to build. While you wait you may want to peek at the [Review Dockerfile Practices](#review-dockerfile-practices) section at the end of this lab chapter.
 ```bash
-$ sudo podman build -it bigimg .
+$ sudo podman build -t bigimg .
 ```
 
 ## Run Container Based on podman Image
