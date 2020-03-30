@@ -20,6 +20,7 @@ RUN yum -y install tar
 RUN yum -y install mariadb-server
 RUN yum -y install net-tools
 RUN yum -y install hostname
+RUN yum -y install procps
 
 # Add in wordpress sources 
 COPY latest.tar.gz /latest.tar.gz

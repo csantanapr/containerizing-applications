@@ -63,7 +63,7 @@ $ sudo podman logs -f bigapp
 
 If you need to inspect more than just the stderr/stdout of the machine then you can enter into the namespace of the container to inspect things more closely. The easiest way to do this is to use `podman exec`. Try it out:
 ```bash
-$ sudo podman exec -t bigapp /bin/bash
+$ sudo podman exec -it bigapp /bin/bash
 [CONTAINER_NAMESPACE]# pstree
 [CONTAINER_NAMESPACE]# cat /var/www/html/wp-config.php | grep '=='
 [CONTAINER_NAMESPACE]# tail /var/log/httpd/access_log /var/log/httpd/error_log /var/log/mariadb/mariadb.log
