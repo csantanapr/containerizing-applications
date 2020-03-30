@@ -36,15 +36,6 @@ Unlike docker, podman doesn't need an always running daemon. There are no podman
 ```bash
 $ pgrep podman | wc -l
 ```
-
-However, the docker daemon is running. You can see that and also check
-the status of the docker daemon:
-
-```bash
-$ pgrep docker | wc -l
-$ systemctl status docker
-```
-
 ## podman and buildah Help
 
 Now that we see how the podman startup process works, we should make sure we know how to get help when we need it.  Run the following commands to get familiar with what is included in the podman package as well as what is provided in the man pages. Spend some time exploring here.
