@@ -31,7 +31,8 @@ __setup_mysql() {
 	CREATE DATABASE $DBNAME;
 EOF
 
-  killall mysqld
+  killall mysqld || :
+  killall mysqld_safe || :
   sleep 10
 }
 
