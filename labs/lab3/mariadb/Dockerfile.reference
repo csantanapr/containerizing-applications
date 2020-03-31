@@ -3,7 +3,7 @@ LABEL maintainer="student@example.com"
 
 # Deps for mariadb
 RUN yum -y install \
-      mariadb-server openssl psmisc net-tools hostname && \
+      mariadb-server openssl psmisc net-tools hostname procps && \
     yum clean all
 
 # Add set up scripts

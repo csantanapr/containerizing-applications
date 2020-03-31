@@ -2,8 +2,14 @@ FROM registry.access.redhat.com/ubi8:8.1-397
 LABEL maintainer="student@example.com"
 
 RUN yum -y install \
-      httpd php php-mysqlnd php-gd openssl psmisc && \
+      httpd php php-mysqlnd php-gd openssl psmisc procps && \
     yum clean all
+
+# running php-fpm directly (not using systemd) does
+# not create the socket directory
+RUN mkdir -p /run/php-fpm
+RUN chown 48:48 /run/php-fpm
+RUN chmod 0755 /run/php-fpm
 
 ADD scripts /scripts 
 RUN chmod 755 /scripts/*
