@@ -92,7 +92,7 @@ $ ls -lR wordpress
 1. Add the required packages. We'll include `yum clean all` at the end to clear the yum cache.
 
         RUN yum -y install \
-              mariadb-server openssl psmisc net-tools hostname && \
+              mariadb-server openssl psmisc net-tools hostname procps && \
             yum clean all
 
 1. Add the dependent scripts and modify permissions to support non-root container runtime.
@@ -137,8 +137,16 @@ Now we'll create the Wordpress Dockerfile. (As before, there is a reference file
 1. Add the required packages. We'll include `yum clean all` at the end to clear the yum cache.
 
         RUN yum -y install \
-              httpd php php-mysqlnd php-gd openssl psmisc && \
+              httpd php php-mysqlnd php-gd openssl psmisc procps && \
             yum clean all
+
+1. Configure php-fpm which you have to do differently when you aren't using systemd.
+
+        # running php-fpm directly (not using systemd) does
+        # not create the socket directory
+        RUN mkdir -p /run/php-fpm
+        RUN chown 48:48 /run/php-fpm
+        RUN chmod 0755 /run/php-fpm
 
 1. Add the dependent scripts and make them executable.
 
@@ -195,7 +203,7 @@ Now we are ready to build the images to test our Dockerfiles.
 1. Run the wordpress image first. See an explanation of all the `podman run` options we will be using below:
 
   * `-d` to run in daemonized mode
-  * `-v <host/path>:<container/path>:z` to mount (technically, "bindmount") the directory for persistent storage. The :z option will label the content inside the container with the SELinux MCS label that the container uses so that the container can write to the directory. Below we'll inspect the labels on the directories before and after we run the container to see the changes on the labels in the directories
+  * `-v <host/path>:<container/path>:z` to mount (technically, "bindmount") the directory for persistent storage.  The :z option will label the content inside the container with the SELinux MCS label that the container uses so that the container can write to the directory.  Below we'll inspect the labels on the directories before and after we run the container to see the changes on the labels in the directories.
   * `-p <host_port>:<container_port>` to map the container port to the host port
 
 ```bash
@@ -246,13 +254,12 @@ Now we can check out how the database is doing
 ```bash
 $ sudo podman logs mariadb
 $ sudo podman ps
-$ sudo podman exec mariadb curl localhost:3306
+$ sudo podman exec mariadb curl localhost:3306 # gives an error but you can tell mariadb answered
 $ sudo podman exec mariadb mysql -u user --password=mypassword -e 'show databases'
 $ curl localhost:3306 #as you can see the db is not generally visible
 $ curl -L http://localhost:8080 #and now wp is happier!
 ```
 
-You may also load the Wordpress application in a browser to test its full functionality @ `http://<YOUR AWS VM PUBLIC DNS NAME HERE>:8080`.
 
 ## Deploy a Container Registry
 
