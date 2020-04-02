@@ -73,6 +73,16 @@ $ oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":
 $ sed -i -e "s|OS_REGISTRY_VALUE| \ `oc get routes -o jsonpath="{..items[*].spec.host}"`|g" ~/.bashrc
 ```
 
+Now let's make our lab user able to access it:
+
+```bash
+$ # user most have logged in at least once
+$ oc login -u $OS_USER -p $OS_PASS $OS_API 
+$ oc login -u $OS_ADMIN_USER -p $OS_ADMIN_PASS $OS_API # go back to admin
+$ oc policy add-role-to-user registry-viewer $OS_USER
+$ oc policy add-role-to-user registry-editor $OS_USER
+```
+
 ## OpenShift Container Platform
 
 What is OpenShift? OpenShift, which you may remember as a "[PaaS](https://en.wikipedia.org/wiki/Platform_as_a_service)" to build applications on, has evolved into a complete container platform based on Kubernetes. If you remember the "[DIY Cartridges](https://github.com/openshift/origin-server/blob/master/documentation/oo_cartridge_guide.adoc#diy)" from older versions of Openshift, essentially, OpenShift v3 has expanded the functionality to provide complete containers. With OpenShift, you can build from a platform, build from scratch, or anything else you can do in a container, and still get the complete lifecycle automation you loved in the older versions.
