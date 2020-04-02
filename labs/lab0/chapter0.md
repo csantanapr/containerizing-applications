@@ -1,37 +1,18 @@
 ## Introduction
 
-In this lab, we are going to leverage a process known as [`oc cluster up`](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md). `oc cluster up` leverages the local docker daemon and enables us to quickly stand up a local OpenShift Container Platform to start our evaluation. The key result of `oc cluster up` is a reliable, reproducible OpenShift environment to iterate on.
+blah
 
 Expected completion: 5-10 minutes
 
-## Find your AWS Instance
-This lab is designed to accommodate many students. As a result, each student will be given a VM running on AWS. The naming convention for the lab VMs is:
+## Spin up an environment
 
-**student-\<number\>**.labs.sysdeseng.com
+In an effort to make this lab repeatable, we offer it pre-configured in the [Red Hat Product Demo system](https://rhpds.redhat.com). For the easiest setup, please head there and launch the "Containerizing Applications: Existing and New" item in the "[Catalog](https://rhpds.redhat.com/catalog/explorer)."
 
-You will be assigned a number by the instructor.
+However, if you don't have access to the demo portal, you can also create a new RHEL8 Virtual Machine and run the [`configure-lab.sh`](../../setup/configure-lab.sh) script in the setup directory in this repo.
 
-Retrieve the key from the [instructor host](https://instructor.labs.sysdeseng.com/summit/L1108.pem) so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _L1108.pem_ file to your local machine and change the permissions of the file to 600.
+## Connecting to your environment [RHPDS]
 
-```bash
-$ PASSWD=<password from instructor>
-$ wget --no-check-certificate --user student --password ${PASSWD} https://instructor.labs.sysdeseng.com/summit/L1108.pem
-$ chmod 600 L1108.pem
-```
-
-## Connecting to your AWS Instance
-This lab should be performed on **YOUR ASSIGNED AWS INSTANCE** as `ec2-user` unless otherwise instructed.
-
-**_NOTE_**: Please be respectful and only connect to your assigned instance. Every instance for this lab uses the same public key so you could accidentally (or with malicious intent) connect to the wrong system. If you have any issues please inform an instructor.
-```bash
-$ ssh -i L1108.pem ec2-user@student-<number>.labs.sysdeseng.com
-```
-
-**NOTE**: For Windows users you will have to use a terminal like [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) to SSH using the private key. 
-
-Once installed, use the following instructions to SSH to your VM instance: [http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html).
-
-TIP: Use the rhte.ppk key located at:  [instructor host](https://instructor.labs.sysdeseng.com/L1108.ppk) as PuTTY uses a different format for its keys.
+Once you launch the demo, you should receive an email with the credentials to ssh in to the "ClientVM". Do not ssh to the OpenShift Cluster as that isn't used in this lab.
 
 ## Getting Set Up
 For the sake of time, some of the required setup has already been taken care of on your AWS VM. For future reference though, the easiest way to get started is to head over to the OpenShift Origin repo on github and follow the "[Getting Started](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md)" instructions. The instructions cover getting started on Windows, MacOS, and Linux.
@@ -44,56 +25,52 @@ $ screen
 
 In case you get disconnected use `screen -x` or `tmux attach` to reattach once you reestablish ssh connectivity. If you are unfamiliar with screen, check out this [quick tutorial](https://www.mattcutts.com/blog/a-quick-tutorial-on-screen/). For tmux here is a [quick tutorial](https://fedoramagazine.org/use-tmux-more-powerful-terminal/).
 
-All that's left to do is run OpenShift by executing the `start-oc.sh` script in your home directory. First, let's take a look at what this script is doing, it's grabbing AWS instance metadata so that it can configure OpenShift to start up properly on AWS:
-```bash
-$ cat ~/start-oc.sh
-```
-Now, let's start our local, containerized OpenShift environment:
-```bash
-$ ~/start-oc.sh
-```
 
-The resulting output should be something of this nature
-```bash
-Using nsenter mounter for OpenShift volumes
-Using 127.0.0.1 as the server IP
-Starting OpenShift using registry.access.redhat.com/openshift3/ose:v3.9.14 ...
-OpenShift server started.
+## Lab Materials [Not RHPDS]
 
-The server is accessible via web console at:
-    https://<public hostname>:8443
-
-You are logged in as:
-    User:     developer
-    Password: <any value>
-
-To login as administrator:
-    oc login -u system:admin
-```
-You should get a lot of feedback about the launch of OpenShift. As long as you don't get any errors you are in good shape.
-
-OK, so now that OpenShift is available, let's ask for a cluster status & take a look at our running containers:
-```bash
-$ oc version
-$ oc cluster status
-```
-
-As noted before, `oc cluster up` leverages docker for running
-OpenShift. You can see that by checking out the containers and
-images that are managed by docker:
-
-```bash
-$ sudo docker ps
-$ sudo docker images
-```
-We can also check out the OpenShift console. Open a browser and navigate to `https://<public-hostname>:8443`. Be sure to use http*s* otherwise you will get weird web page. Once it loads (and you bypass the certificate errors), you can log in to the console using the default developer username (use any password).
-
-## Lab Materials
-
-Clone the lab repository from github:
+Clone the lab repository from gitlab:
 ```bash
 $ cd ~/
 $ git clone https://gitlab.com/2020-summit-labs/containerizing-applications
+```
+
+## Lab Materials [RHPDS]
+
+Make sure the lab materials are up to date by git pulling the repo:
+```bash
+$ cd ~/containerizing-applications
+$ git pull
+```
+
+Now that we have all the content, we need to do a little bit of local configuration to support the dynamic nature of the lab.
+
+Next, take a look in `~/.bashrc` and make sure you have the following environment variables, even though they are (likely) not set correctly. You should have:
+
+ ```bash
+$ tail -6 ~/.bashrc
+# User specific aliases and functions
+export OS_REGISTRY='OS_REGISTRY_VALUE'
+export OS_API='OS_API_VALUE'
+export OS_ADMIN_USER='opentlc-mgr'
+export OS_ADMIN_PASS='r3dh4t1!'
+export OS_USER='lab-user'
+export OS_PASS='r3dh4t1!'
+```
+
+Now please replace "\<item\>" with the OpenShift API URL you got in your setup email (and don't forget the port). Or, if not using RHPDS, your setup:
+
+```bash
+$ sed -i -e "s|OS_API_VALUE|<item>|g" ~/.bashrc
+$ source ~/.bashrc
+```
+
+Once you have that, you can expose the OpenShift registry by and add it to our variables:
+
+```bash
+$ oc login -u $OS_ADMIN_USER -p $OS_ADMIN_PASS $OS_API
+$ oc project openshift-image-registry
+$ oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
+$ sed -i -e "s|OS_REGISTRY_VALUE| \ `oc get routes -o jsonpath="{..items[*].spec.host}"`|g" ~/.bashrc
 ```
 
 ## OpenShift Container Platform
