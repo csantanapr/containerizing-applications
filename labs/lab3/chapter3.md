@@ -261,39 +261,49 @@ $ curl -L http://localhost:8080 #and now wp is happier!
 ```
 
 
-## Deploy a Container Registry
+## Use a Container Registry
 
-Let's deploy a simple registry to store our images.
+One of the things we can use our OpenShift cluster for is as a container registry. A container registry let's us share images with other machines including OpenShift itself. In a sense, `podman images` is a container registry but it is private to this machine. We want to make the images available elsewhere.
 
-Inspect the Dockerfile that has been prepared.
+Let's get the images we created deployed to the registry. 
+
+### Insecure Registries
+
+For this lab, and likely for your development environments, you will be using self-signed certificates on your registry. As a result, `podman` will not allow their use unless explicitly told to. You can pass `--tls-verify=false` on the command line but this is prone to all kinds of error (and accidental innappropriate use).  
+
+However, given the dynamic nature of this lab, it is a little hard to automatically or consistently add the insecure registry. As a result, we will be using `--tls-verify=false`. If you do want to experiment with the registry change, you can edit `/etc/containers/registries.conf` and search for `[registries.insecure]` and then add the output of `echo $OS_REGISTRY` there.
+
+### Add a project
+
+As a non-admin user, in order to add our images to the registry, the images have to be in a project/namespace. As a result, we need to create a project. During this step we will briefly introduce `oc` (the Openshift Client). We will be exploring `oc` in much more depth in the next lab. 
+
 ```bash
-$ cd ~/containerizing-applications/labs/lab3/
-$ cat registry/Dockerfile
+$ oc login -u $OS_USER -p $OS_PASS $OS_API
+$ oc new-project container-lab
 ```
 
-Build & run the registry
+### Tag images for registry
+
+First, we have to tag the images we want to push with the place they will end up.
+
 ```bash
-$ sudo podman build -t registry registry/
-$ sudo podman run --name registry -p 5000:5000 -d registry
+$ sudo podman images
+$ sudo podman tag localhost/mariadb $OS_REGISTRY/container-lab/mariadb
+$ sudo podman tag localhost/wordpress $OS_REGISTRY/container-lab/wordpress
 ```
 
-Confirm the registry is running.
-```bash
-$ sudo podman ps
-```
-
-### Push images to local registry
+### Push images to registry
 
 Push the images
 ```bash
 $ sudo podman images
-$ sudo podman push --tls-verify=false mariadb localhost:5000/mariadb
-$ sudo podman push --tls-verify=false wordpress localhost:5000/wordpress
+$ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
+$ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
 ```
 
 ## Clean Up
 
-Remove the mariadb and wordpress containers.
+Let's clean up the containers we had running. 
 
 ```bash
 $ sudo podman rm -f mariadb wordpress
