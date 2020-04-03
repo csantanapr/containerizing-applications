@@ -292,9 +292,22 @@ $ sudo podman tag localhost/mariadb $OS_REGISTRY/container-lab/mariadb
 $ sudo podman tag localhost/wordpress $OS_REGISTRY/container-lab/wordpress
 ```
 
-### Push images to registry
+### Login to the registry
+
+In order to push to the registry, we need login to the registry with `podman`. However, this can be a little confusing as we can't login with our normal password but, instead, must use an OpenShift generated token. `oc whoami -t` will give us the token we need, assuming we are logged in with oc.
 
 Push the images
+```bash
+$ sudo podman login --tls-verify=false \
+  -u $OS_USER \
+  -p $(oc whoami -t) \
+  $OS_REGISTRY
+```
+
+### Push images to registry
+
+Push the images:
+
 ```bash
 $ sudo podman images
 $ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/mariadb
