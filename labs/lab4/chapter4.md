@@ -16,7 +16,7 @@ $ sudo podman run -d --network=container:wordpress -v ~/workspace/pv/mysql:/var/
 ```
 
 Take a look at the site in your web browser on your machine using 
-`http://<YOUR AWS VM PUBLIC DNS NAME HERE>:8080`. As you learned before, you can confirm the port that your server is running on by executing:
+`http://<YOUR HOSTNAME>:8080`. As you learned before, you can confirm the port that your server is running on by executing:
 ```bash
 $ sudo podman ps
 $ sudo podman port wordpress
@@ -31,7 +31,7 @@ $ sudo podman stop mariadb
 
 Take a look at the site in your web browser or using curl now. And, imagine explosions! (*making sound effects will be much appreciated by your lab mates.*)
   
-* web browser -> `http://<YOUR AWS VM PUBLIC DNS NAME HERE>:8080`
+* web browser -> `http://<YOUR HOSTNAME>:8080`
 OR
 ```bash
 $ curl -L http://localhost:8080
@@ -50,7 +50,7 @@ $ echo -e "$OLD_CONTAINER_ID\n$NEW_CONTAINER_ID"
 
 Hmmm. Well, that is cool, they are exactly the same. OK, so all in all, about what you would expect for a web server and a database running on VMs, but a whole lot faster (well, the starting is). Let's take a look at the site now.
 
-* web browser -> `http://<YOUR AWS VM PUBLIC DNS NAME HERE>:8080`
+* web browser -> `http://<YOUR HOSTNAME>:8080`
 OR
 ```bash
 $ curl -L http://localhost:8080
@@ -67,16 +67,51 @@ Starting and stopping is definitely easy, and fast. However, it is still pretty 
 
 ## Using OpenShift
 
-Now login to our local OpenShift & create a new project:
+Now login to our local OpenShift & connect to our project:
 ```bash
-$ oc login -u developer
-You have one project on this server: "myproject"
-
-$ oc new-project devel
-Now using project "devel" on server "https://127.0.0.1:8443".
+$ oc login -u $OS_USER -p $OS_PASS
+$ oc project container-lab 
 ```
 
-You are now logged in to OpenShift and are using the ```devel``` project. You can also view the OpenShift web console by using the same credentials to log in to ```https://<YOUR AWS VM PUBLIC DNS NAME HERE>:8443``` in a browser.
+You are now logged in to OpenShift and are using the ```container-lab``` project. You can also view the OpenShift web console by using the same credentials to log in to "```echo $OS_CONSOLE```" in a browser.
+
+## Adjust Users
+
+When we run a container in OpenShift, we must use unprivileged users inside our containers. In short, the user must have an id > 1000. Unfortunately, our `apache` user is `48` so we need to adjust our container a little bit. 
+
+We are going to change the user to be `1001` and the group to be `0` (`root`) and then give both the user and group write access on the `/run/php-fpm/` directory.
+
+```bash
+$ vi wordpress/Dockerfile
+```
+
+modify these two lines:
+
+```bash
+RUN chown 48:48 /run/php-fpm
+RUN chmod 0755 /run/php-fpm
+```
+
+to be:
+
+```bash
+RUN chown 1001:0 /run/php-fpm
+RUN chmod 0775 /run/php-fpm
+```
+
+then save and exit.
+
+Once we made the change we need to rebuild the container image (remember container images are immutable) and push it to the OpenShift Registry.
+
+```bash
+  $ sudo podman build -t wordpress wordpress/
+  $ sudo podman tag localhost/wordpress $OS_REGISTRY/container-lab/wordpress
+  $ sudo podman login --tls-verify=false \
+    -u $OS_USER \
+    -p $(oc whoami -t) \
+    $OS_REGISTRY  
+  $ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
+```
 
 ## Pod Creation
 
@@ -110,7 +145,7 @@ Now, let's add the custom information regarding this particular container. To st
 ```yaml
   containers:
   - name: mariadb
-    image: localhost:5000/mariadb
+    image: image-registry.openshift-image-registry.svc:5000/container-lab/mariadb
     ports:
     - containerPort: 3306
     env:
@@ -313,12 +348,12 @@ And you should be able to see the service's accessible URL by viewing the routes
 ```bash
 $ oc get routes
 NAME        HOST/PORT                               PATH      SERVICES    PORT      TERMINATION   WILDCARD
-wordpress   wordpress-devel.<YOUR AWS VM PUBLIC IP>.nip.io    wordpress   8080                    None
+wordpress   wordpress-container-lab.apps.<YOUR HOSTNAME>      wordpress   8080                    None
 ```
 
 Check and make sure you can access the wordpress service through the route:
 ```bash
-$ curl -L wordpress-devel.<YOUR AWS VM PUBLIC IP>.nip.io
+$ curl -L wordpress-container-lab.apps.<YOUR HOSTNAME>
 ```
 
 * OR open the URL in a browser to view the UI
