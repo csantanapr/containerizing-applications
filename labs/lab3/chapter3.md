@@ -297,7 +297,7 @@ $ sudo podman tag localhost/wordpress $OS_REGISTRY/container-lab/wordpress
 Push the images
 ```bash
 $ sudo podman images
-$ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
+$ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/mariadb
 $ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
 ```
 
