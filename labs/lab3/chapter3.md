@@ -25,16 +25,17 @@ From the container namespace list the log directories.
 ```
 
 We see `httpd` and `mariadb`. These are the services that make up the Wordpress application.
+Log files are a good place to look to find details you may need to break up the application.
 
 ### Ports
 
-We saw in the Dockerfile that port 80 was exposed. This is for the web server. Let's look at the mariadb logs for the port the database uses:
+We saw in the Dockerfile that port 80 was exposed. This is for the web server. Let's look at netstat for the port the database uses:
 
 ```bash
-[CONTAINER_NAMESPACE]# grep port /var/log/mariadb/mariadb.log
+[CONTAINER_NAMESPACE]# netstat -lnp
 ```
 
-This shows port 3306 is used.
+Only two ports listening so port 3306 must be the database.
 
 ### Storage
 
@@ -260,22 +261,21 @@ $ curl localhost:3306 #as you can see the db is not generally visible
 $ curl -L http://localhost:8080 #and now wp is happier!
 ```
 
-
 ## Use a Container Registry
 
 One of the things we can use our OpenShift cluster for is as a container registry. A container registry let's us share images with other machines including OpenShift itself. In a sense, `podman images` is a container registry but it is private to this machine. We want to make the images available elsewhere.
 
-Let's get the images we created deployed to the registry. 
+Let's get the images we created deployed to the registry.
 
 ### Insecure Registries
 
-For this lab, and likely for your development environments, you will be using self-signed certificates on your registry. As a result, `podman` will not allow their use unless explicitly told to. You can pass `--tls-verify=false` on the command line but this is prone to all kinds of error (and accidental innappropriate use).  
+For this lab, and likely for your development environments, you will be using self-signed certificates on your registry. As a result, `podman` will not allow their use unless explicitly told to. You can pass `--tls-verify=false` on the command line but this is prone to all kinds of error (and accidental innappropriate use).
 
 However, given the dynamic nature of this lab, it is a little hard to automatically or consistently add the insecure registry. As a result, we will be using `--tls-verify=false`. If you do want to experiment with the registry change, you can edit `/etc/containers/registries.conf` and search for `[registries.insecure]` and then add the output of `echo $OS_REGISTRY` there.
 
 ### Add a project
 
-As a non-admin user, in order to add our images to the registry, the images have to be in a project/namespace. As a result, we need to create a project. During this step we will briefly introduce `oc` (the Openshift Client). We will be exploring `oc` in much more depth in the next lab. 
+As a non-admin user, in order to add our images to the registry, the images have to be in a project/namespace. As a result, we need to create a project. During this step we will briefly introduce `oc` (the Openshift Client). We will be exploring `oc` in much more depth in the next lab.
 
 ```bash
 $ oc login -u $OS_USER -p $OS_PASS $OS_API
@@ -316,7 +316,7 @@ $ sudo podman push --tls-verify=false $OS_REGISTRY/container-lab/wordpress
 
 ## Clean Up
 
-Let's clean up the containers we had running. 
+Let's clean up the containers we had running.
 
 ```bash
 $ sudo podman rm -f mariadb wordpress
