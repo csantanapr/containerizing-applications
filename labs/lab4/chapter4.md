@@ -358,4 +358,3 @@ $ curl -L wordpress-container-lab.apps.<YOUR HOSTNAME>
 
 * OR open the URL in a browser to view the UI
 
-Seemed awfully manual and ordered up there, didn't it? In our [next lab](../lab5/chapter5.md) we'll demonstrate how simple deployments can be with OpenShift templates.
