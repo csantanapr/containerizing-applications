@@ -4,12 +4,22 @@
   package: name={{item}} state=present
   with_items:
     - git
+  become: true
 
 - name: git clone lab
   git:
     repo: https://gitlab.com/2020-summit-labs/containerizing-applications.git
     dest: /home/lab-user/containerizing-applications
+  become: true
 
-
-
-
+- name: Add env vars to bashrc
+  blockinfile:
+    path: $HOME/.bashrc
+    insertafter: "# User specific aliases and functions"
+    block: |
+      export OS_REGISTRY='OS_REGISTRY_VALUE_URL'
+      export OS_API='OS_API_VALUE_URL'
+      export OS_ADMIN_USER='opentlc-mgr'
+      export OS_ADMIN_PASS='r3dh4t1!'
+      export OS_USER='lab-user'
+      export OS_PASS='r3dh4t1!'

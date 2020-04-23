@@ -1,7 +1,6 @@
 ---
 # file: ts440s.yml
 - hosts: localhost
-  become: true
   become_method: sudo
   roles:
     - common
