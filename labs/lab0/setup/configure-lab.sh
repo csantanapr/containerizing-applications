@@ -8,4 +8,4 @@ sudo yum install -y ansible git
 git clone https://gitlab.com/2020-summit-labs/containerizing-applications \
     $DIR/containerizing-applications
 ansible-playbook -i "localhost," -K -c local \
-    $DIR/containerizing-applications/setup/ansible/main.yml 
+    $DIR/containerizing-applications/labs/lab0/setup/ansible/main.yml 
