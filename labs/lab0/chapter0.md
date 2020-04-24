@@ -16,10 +16,10 @@ Expected completion: 5-10 minutes
 
 In an effort to make this lab repeatable, we offer it pre-configured in the [Red Hat Product Demo system](https://rhpds.redhat.com). For the easiest setup, please head there and launch the "Containerizing Applications: Existing and New" item in the "[Catalog](https://rhpds.redhat.com/catalog/explorer)." Proceed to [Connecting to your environment [RHPDS]](#connecting-to-your-environment-rhpds).
 
-However, if you don't have access to the demo portal, you can also create a new RHEL8 Virtual Machine and run the [`configure-lab.sh`](../../setup/configure-lab.sh) script in the setup directory in this repo.
+However, if you don't have access to the demo portal, you can also create a new RHEL8 Virtual Machine and run the [`configure-lab.sh`](./setup/configure-lab.sh) script in the setup directory in this repo.
 
 ```bash
-$ curl -o configure-lab.sh -L https://gitlab.com/2020-summit-labs/containerizing-applications/-/raw/master/setup/configure-lab.sh
+$ curl -o configure-lab.sh -L https://gitlab.com/2020-summit-labs/containerizing-applications/-/raw/master/labs/lab0/setup/configure-lab.sh
 $ cat configure-lab.sh
 $ chmod a+x configure-lab.sh
 $ ./configure-lab.sh
@@ -52,40 +52,70 @@ Now that we have all the content, we need to do a little bit of local configurat
 Next, take a look in `~/.bashrc` and make sure you have the following environment variables, even though they are (likely) not set correctly. You should have:
 
  ```bash
-$ tail -6 ~/.bashrc
+$ tail -9 ~/.bashrc
 # User specific aliases and functions
-export OS_REGISTRY='OS_REGISTRY_VALUE'
+# BEGIN ANSIBLE MANAGED BLOCK
+export OS_REGISTRY='OS_REGISTRY_URL'
 export OS_API='OS_API_URL'
 export OS_ADMIN_USER='opentlc-mgr'
 export OS_ADMIN_PASS='r3dh4t1!'
 export OS_USER='lab-user'
 export OS_PASS='r3dh4t1!'
+# END ANSIBLE MANAGED BLOCK
 ```
 
 ### Environment Variables [RHPDS]
 Now please replace `OS_API_URL` in `.bashrc` with the appropriate value. You should have it in your setup email (and don't forget the ports). The usernames and passwords should already be set correctly.  We will set `OS_REGISTRY_VALUE` a little later.
 
 ```bash
-$ vi ~/.bashrc
+$ sed -i -e "s|OS_API_URL|<api value you got from the email>|g" ~/.bashrc
 $ source ~/.bashrc
 ```
 
 ### Environment Variables [Custom]
-Now please replace the values in `.bashrc` with the appropriate values. You should have them from your OpenShift setup (and don't forget the ports). We will set `OS_REGISTRY_VALUE` a little later.
+Now please replace the values in `.bashrc` with the appropriate values. You should have them from your OpenShift setup (and don't forget the ports). We will set `OS_REGISTRY_URL` a little later.
 
 ```bash
 $ vi ~/.bashrc
 $ source ~/.bashrc
 ```
 
+### Acquire the appropriate version `oc`
+
+In order to interact with OpenShift from the command line we will need a tool called `oc`. We want to be sure we get the same version as the version of OpenShift we are using.
+
+```bash
+$ curl -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.3.1/openshift-client-linux-4.3.1.tar.gz
+$ mkdir ~/bin && tar -xf openshift-client-linux-4.3.1.tar.gz -C ~/bin/
+```
+
+### Configure lab-user [Custom]
+If you are using the RHPDS instance, you can skip the following step as it will have been done for you. If not, you need to add our `lab-user` to OpenShift using the `htpasswd` Provider.   
+
+We have provided a users.htpasswd file and the custom resource definition for it in the setup directory.
+
+```bash
+$ oc login -u $OS_ADMIN_USER -p $OS_ADMIN_PASS $OS_API
+$ oc get secret htpasswd-secret \
+    -ojsonpath={.data.htpasswd} -n openshift-config | \
+    base64 -d > users.htpasswd
+$ htpasswd -bB users.htpasswd $OS_USER $OS_PASS
+$ oc create secret generic htpasswd-secret \
+    --from-file=htpasswd=users.htpasswd \
+    --dry-run -o yaml -n openshift-config | oc replace -f -
+```
+
 ### OpenShift Registry
-Once you have the variables set, you can expose the OpenShift registry by and add it to our variables:
+Once you have the variables set, you can expose the OpenShift registry and add it to our variables:
 
 ```bash
 $ oc login -u $OS_ADMIN_USER -p $OS_ADMIN_PASS $OS_API
 $ oc project openshift-image-registry
-$ oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
-$ sed -i -e "s|OS_REGISTRY_VALUE| \ `oc get routes -o jsonpath="{..items[*].spec.host}"`|g" ~/.bashrc #this sets OS_REGISTRY_VALUE
+$ oc patch configs.imageregistry.operator.openshift.io/cluster \
+    --patch '{"spec":{"defaultRoute":true}}' --type=merge
+$ sed -i -e "s|OS_REGISTRY_URL|`oc get routes -o jsonpath="{..items[*].spec.host}"`|g" \
+    ~/.bashrc #this sets OS_REGISTRY_VALUE
+$ source ~/.bashrc
 ```
 
 Now let's make our lab user able to access it:
