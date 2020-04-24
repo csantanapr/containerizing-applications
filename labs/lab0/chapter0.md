@@ -1,16 +1,8 @@
 ## Introduction
 
-blah
+Welcome to the Containerizing Applications lab! During this 0th lab we make sure everything is setup correctly. 
 
-Expected completion: 5-10 minutes
-
-- [Introduction](#introduction)
-- [Spin up an environment](#spin-up-an-environment)
-- [Connecting to your environment [RHPDS]](#connecting-to-your-environment-rhpds)
-- [Getting Set Up](#getting-set-up)
-- [Lab Materials [Not RHPDS]](#lab-materials-not-rhpds)
-- [Lab Materials [RHPDS]](#lab-materials-rhpds)
-- [OpenShift Container Platform](#openshift-container-platform)
+Expected completion: 10-15 minutes
 
 ## Spin up an environment
 
